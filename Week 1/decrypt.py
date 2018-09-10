@@ -61,7 +61,7 @@ def try_all_posibilities(cipher, key_len, order):
 
         closest_key = ""
         distance_to_english = 0
-        
+
         for i in range(256):  # All possible keys
             decrypt = []
             failed = False
@@ -69,7 +69,10 @@ def try_all_posibilities(cipher, key_len, order):
             for character in sub_cipher: # 'decrypt all keys'
                 char = character ^ i # XOR 
 
-                if not ((char >= 32 and char <= 47) or (char >= 57 and char < 127)): # check whether or not the outcome is actually a character
+                if not ((char >= 44 and char <= 47) or 
+                        (char >= 65 and char <= 90) or 
+                        (char >= 97 and char <= 122)
+                        or char == 32): # check whether or not the outcome is actually a character
                     failed = True
                     break
 
@@ -83,13 +86,13 @@ def try_all_posibilities(cipher, key_len, order):
                 dist = collections.Counter(decrypt)
 
                 freq = ''.join(x[0] for x in dist.most_common())
+
                 ratio = difflib.SequenceMatcher(a=freq, b=order).ratio()
 
                 if ratio >= distance_to_english:
                     distance_to_english = ratio
                     closest_key = i
         key += [closest_key]
-    print(key)
     return key
 
 def print_decrypt(cipher, key):
@@ -104,6 +107,7 @@ cipher = get_cipher_text()
 unique, counts = np.unique(cipher, return_counts=True)
 distribution = dict(zip(unique, counts))
 key_length = int(get_key_length_posibilities(cipher, len(distribution))[0,1])
+
 key = try_all_posibilities(cipher, key_length, order)
 output = print_decrypt(cipher, key)
 
